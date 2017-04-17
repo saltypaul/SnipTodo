@@ -1,0 +1,38 @@
+db schema:
+	db: nus; collection: todolist
+	schema:
+
+		_id: unique key
+
+		completed: boolean; whether completed or not.
+
+		text_base: string; text without removing stopwords.
+
+		stopword_removed: boolean; whether removed stopwords.
+			if true: text_swr is the result of removing stopwords from text_base.
+			will be false when created or text_base updated.
+			will be true after removing stopwords from text_base.
+
+		text_swr: string; text that has stopwords removed.
+			valide if stopword_removed is true; stale if stop false
+
+		create_time: date-time; time of item creation.
+			it is immutable.
+
+		last_modified: date-time; time of last modification of this item.
+			updated when any other field is modified
+
+
+API definition:
+	
+	GET/todolist           get all todos
+
+	GET/todolist           get a single todo
+
+	POST/todolist          create a new todo
+
+	DELETE/todolist/:id    delete a todo
+
+	PATCH/todolist/:id     update a todo
+
+
