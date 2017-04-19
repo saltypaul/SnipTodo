@@ -1,0 +1,50 @@
+db schema:
+  db: acedb; collection: todolist
+  schema:
+
+    _id: unique key
+
+    completed: boolean; whether completed or not.
+
+    text: string; text describing what to do.
+
+    swr_flag: boolean; whether removed stopwords.
+      will be false when created or text updated.
+      will be true after removing stopwords from text.
+
+    create_time: date-time; time of item creation.
+      it is immutable.
+
+    last_modified: date-time; time of last modification of this item.
+      updated when any other field is modified
+
+
+API definition:
+
+  GET/todolist           get all todos
+
+  GET/todolist/:id       get a single todo
+
+  GET/swr/:id       get the stop-word-removal result of a todo
+
+  POST/todolist          create a new todo
+
+  DELETE/todolist/:id    delete a todo
+
+  PATCH/todolist/:id     update a todo
+
+
+Using coreNLP server as an external API server. Arguments:
+  1. clearn implementation
+  2. better performance
+  3. fexibility
+
+
+URL structure:
+
+  /               Home/Welcome
+  /about          Home/About
+  /todolist       Archive/TodosContainer
+
+
+
