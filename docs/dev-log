@@ -1,0 +1,32 @@
+yarn init
+yarn add express mongoose morgan body-parser
+yarn add babel-core babel-cli babel-preset-es2015 --dev
+
+write app/models/todo.js to define db schema
+write app/routes/todo.js to define routing
+
+write server.js to config the server
+
+write utils/nlp.js to implement stop-wordssagas removing utility
+
+start coreNLP server
+
+use eslint to check these files
+use postman to test API
+use mongodb compass to visually see the db documents
+
+use webpack to create the bundle
+use webpack-dev-server to serve the client during development
+
+write client/dist/index.html
+write client/src/index.js
+write client/src/routes.js
+
+.... all those work without redux
+
+add redux, immutable, add redux-immutable to use combineReducer
+add redux-saga for async requests
+add react-redux from Provider
+
+
+
