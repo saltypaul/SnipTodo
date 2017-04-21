@@ -1,20 +1,23 @@
-import React, { PureComponent } from 'react';
-import { Link } from 'react-router';
+/**
+ * This module is the container of the home/welcome view, 
+ * and it's a stateless pure component.
+ * The usage of React.PureComponent gives a considerable increase in 
+ * performance because it reduces the number of render operation in the application.
+ * 
+ * @module Archive
+ */
 
-export default class Layout extends PureComponent {
-  return () {
+import React, { PureComponent } from 'react';
+
+export default class Archive extends PureComponent {
+
+  render () {
+    
     return (
       <div className="view">
-        <nav className="navbar navbar-inverse">
-          <Link className="navbar-brand" to="/">
-            <img src='http://ooickqdin.bkt.clouddn.com/1492520004_946739.png' className='header-logo'/>
-          </Link>
-        </nav>
         {this.props.children}
-        <footer className="text-center">
-          <p>&copy; 2017 Ace Tseng</p>
-        </footer>
       </div>
     );
   }
+
 }

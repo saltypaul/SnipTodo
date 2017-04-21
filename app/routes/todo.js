@@ -1,151 +1,220 @@
+/**
+ * This module describes all logics of service.
+ */
 import Todo from '../models/todo';
-import removeStopWord from '../../utils/nlp';
+import removeStopWord from '../../utils/nlp/nlp';
 
-// get all the todo items, sorted by create_time
+/**
+ * Get all the todo items, ascendingly sorted by create_time.
+ */
 const getTodolist = (req, res) => {
   Todo.find(null, null, { sort: { create_time : 1 } }, (err, todolist) => {
     if (err) {
       return res.send(err);
     }
-    // send json formated todolist
+    // Send JSON formated data
     res.json(todolist);
   });
 };
 
-// get a single todo by id
+
+/**
+ * Get a single Todo item by id.
+ */
 const getTodo = (req, res) => {
+  // Target item is specified by the id param of the request.
   const { id } = req.params;
-  //db query for a todo
   Todo.findById(id, (err, todo) => {
     if (err) {
       return res.send(err);
     }
-    // send json formated todo
+    // Send JSON formated data
     res.json(todo); 
   });
 };
 
-// create a new todo
+/**
+ * Create and post a new Todo item.
+ */
 const postTodo = (req, res) => {
-  // the only legal args in req.body are text and completed
+  /**
+   * The legitimate arguments shipped with req.body are text and completed.
+   */
   let text = 'text' in req.body ? req.body.text : '';
   let completed = 'completed' in req.body ? req.body.completed : false;
+  // Create a new item accordingly
   let todo = Object.assign(new Todo(), { text: text, completed: completed });
-  // save to db
-  todo.save((err, doc, numAffcted) => {
+  /**
+   * Save to new Todo to db.
+   * The doc param inthe callback will be the item inserted
+   */
+  todo.save( (err, doc, numAffcted) => {
     if (err) {
       return res.send(err);
     }
-    // inform client
+    // Send the saved item back.
     res.json(doc);
   });
 };
 
-// delete a todo by id
+/**
+ * Delete a Todo item by id
+ */
 const deleteTodo = (req, res) => {
-  // remove todo by id, and inform client
   Todo.remove(
+    // condition
     { _id: req.params.id },
+    // callback
     err => {
       if (err) {
         return res.send(err);
       }
-      // inform client
+      // Inform client.
       res.json({ message: 'done'});
     }
   );
 };
 
-// update a todo by id
-const patchTodo = (req, res) => {
-  // only legal params: completed and text
 
-  // define the callback for findById
-  const findAndUpdate = (err, old_todo) => {
-    // early return if no corresponding todo found
-    if (!old_todo) {
+/**
+ * Update a Todo item by id
+ */
+const patchTodo = (req, res) => {
+  /**
+   * The legitimate arguments shiped with req.body are text and completed,
+   * since only they are allowed to be manually modified.
+   */
+
+  /**
+   * The callback for findById. Predefine here for clarity.
+   * Should find an item by id then update it.
+   * How to use: Todo.findById(id, findAndUpdate);
+   */
+  const findAndUpdate = (err, todoOld) => {
+    // Early return if no corresponding Todo is found.
+    if (!todoOld) {
       return res.send(err);
     }
 
-    let new_swr_flag;
-    let new_text;
-    let new_completed = 'completed' in req.body ? req.body.completed : old_todo.completed;
+    // The new swr_flag, decided by old swr_flag new and old text.
+    let swrFlagNew;
+    // The new text. If offered by req.body, take it, otherwise keep the old.
+    let textNew; 
+    // The new completed. If offered by req.body, take it, otherwise follow the old.
+    let completedNew = 'completed' in req.body ? req.body.completed : todoOld.completed;
 
-    // if body has text 
+    // If body has text 
     if ('text' in req.body) {
-      //new swr_flag is true only when old swr_flag is true and text is not modified
-      new_swr_flag = old_todo.swr_flag && req.body.text === old_todo.text;
-      new_text = req.body.text;
+      /**
+       * The new swr_flag is true only when old swr_flag is true and text is not modified.
+       * That is, once the text is edited, reset swr_flag to indicate stopwords removal 
+       * should be done again.
+       */
+      swrFlagNew = todoOld.swr_flag && req.body.text === todoOld.text;
+      textNew = req.body.text;
     } else {
-      // else, keep original
-      new_swr_flag = old_todo.swr_flag;
-      new_text = old_todo.text;
+      // Else, keep original.
+      swrFlagNew = todoOld.swr_flag;
+      textNew = todoOld.text;
     }
 
-    //update db accordingly
-
+    //Update db accordingly
     let newTodo = { 
       _id: req.params.id,
-      swr_flag: new_swr_flag,
-      text: new_text,
-      completed: new_completed,
-      create_time: old_todo.create_time, 
+      swr_flag: swrFlagNew,
+      text: textNew,
+      completed: completedNew,
+      create_time: todoOld.create_time, 
       last_modified: Date.now()
      };
 
+    // This method yields the modified doc.
     Todo.findOneAndUpdate(
-      { _id: req.params.id },  //condition
-      newTodo,  //doc
-      {new: true}, //options
-      (err, doc) => {  //callback
+      // condition
+      { _id: req.params.id },
+      // doc
+      newTodo,
+      // options
+      {new: true},
+      // callback
+      (err, doc) => {  
         if (err) {
           return res.send(err);
         }
+        // Send back the modified doc.
         res.json(doc);
       }
     );
   };
 
+  // Find the item by id and update it.
   Todo.findById(req.params.id, findAndUpdate);
 };
 
-// get a todo item with stop-words removed
+
+/**
+ * Get a todo item with stopwords removed.
+ */
 const getTodoSwr = (req, res) => {
   
-  // define the callback for findById
+  /**
+   * The callback for findById. Predefine here for clarity.
+   * Should find an item then remove stopwords from it.
+   * How to use: Todo.findById(id, swrAndUpdate);
+   */
   const swrAndUpdate = (err, todo) => {
-    // early return if no corresponding todo found
+    // Early return if no corresponding Todo found.
     if ( (!todo) || err ) {
       return res.send(err);
     }
 
-    // if already executed stopword removal and persisted to db:
+    /**
+     *  If already executed stopword removal, just return it.
+     *  This helps ease the burden of the server.
+     */
     if ( todo.swr_flag ) {
-      res.json(todo);
+      // For a uniform format, return a list with a single Todo. 
+      res.json( [ todo, ] );
     } else {
-      // else, execute stopword removal and update db
-      // removeStopWord returns a promise, resolves to a list of text
-      removeStopWord(todo.text).then( text_list => {
-        let todo_list = text_list.slice(1, text_list.length).map( new_text => Object.assign( new Todo(), { completed: todo.completed, text: new_text , swr_flag : true }));
-        if (text_list.length>0) {
-          todo_list.push(Object.assign({}, todo._doc, { text: text_list[0], swr_flag: true, last_modified: Date.now() } ));
-        }
-        // will update if existed, otherwise will insert
+      /**
+       * Else, execute stopword removal and update the database.
+       * removeStopWord returns a promise that resolves to a list of strings,
+       * where each string corresponds to a sentence in the original text,
+       * with stopwords removed.
+       */
+        removeStopWord(todo.text).then( textList => {
+        /**
+         * This may be empty.
+         * All the swr_flag conforms to that of the original Todo.
+         * The create_time of each sentence indicates its order of appearance in the original text. 
+         * But right now the time diff is sometimes too small. This may lead to problems with 
+         * sorting by create_time.
+         */
+        let subTodoList = textList.map(
+          textNew => Object.assign( new Todo(), { completed: todo.completed, text: textNew , swr_flag : true })
+        );
+        /**
+         * Use bulk write to reduce interaction with db.
+         * Insert all new Todos, and delete the original one.
+         */
         let bulk = Todo.collection.initializeOrderedBulkOp();
-        for (let idx=0; idx<todo_list.length; idx++) {
-          bulk.find( {_id: todo_list[idx]._id } ).upsert().update( { '$set': todo_list[idx] } );
-        }
-        // execute bulk update
+        subTodoList.forEach( item => {
+          bulk.insert( item );
+        });
+        // Find and remove.
+        bulk.find({ _id: todo._id}).remove();
         bulk.execute((err, result) => {
           if (err) {
             return res.send(err);
           }
-          res.json(todo_list);
+          // Send back the new Todos
+          res.json(subTodoList);
         });
       });
     }
   };
 
+  // Find the item by id and remove stopwords from it.
   Todo.findById(req.params.id, swrAndUpdate);
 
 };

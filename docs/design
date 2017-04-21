@@ -43,7 +43,6 @@ Using coreNLP server as an external API server. Arguments:
 URL structure:
 
   /               Home/Welcome
-  /about          Home/About
   /todolist       Archive/TodosContainer
 
 

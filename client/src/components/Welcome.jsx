@@ -1,17 +1,24 @@
+/**
+ * This module is the welcome view, and it's a stateless pure component.
+ * 
+ * @module Welcome
+ */
+
 import React, { PureComponent } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link } from 'react-router';
 import { Button, Jumbotron} from 'react-bootstrap';
 
-
-// a pure, stateless component
 export default class Welcome extends PureComponent {
+  
   render () {
     return (
-      <div className="innercontainer">
+      <div className="container">
         <Jumbotron>
             <h1>Hello, Snip!</h1>
-            <p>This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+            <p>
+            This is SnipTodo, a Todo List app based on React and Stanford CoreNLP.
+            </p>
             <p>
               <LinkContainer to='/todolist'>
                 <Button bsStyle="primary">Go Snip</Button>
@@ -22,3 +29,4 @@ export default class Welcome extends PureComponent {
     );
   }
 }
+

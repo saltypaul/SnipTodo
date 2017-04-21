@@ -7,7 +7,7 @@ write app/routes/todo.js to define routing
 
 write server.js to config the server
 
-write utils/nlp.js to implement stop-words removing utility
+write utils/nlp.js to implement stop-wordssagas removing utility
 
 start coreNLP server
 
@@ -22,6 +22,11 @@ write client/dist/index.html
 write client/src/index.js
 write client/src/routes.js
 
+.... all those work without redux
+
+add redux, immutable, add redux-immutable to use combineReducer
+add redux-saga for async requests
+add react-redux from Provider
 
 
 

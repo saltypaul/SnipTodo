@@ -1,11 +1,15 @@
-import About from './About';
+/**
+ * This module simply exports all 
+ */
+
 import Home from './Home';
 import Welcome from './Welcome';
+import Archive from './Archive';
 
 import TodoListManager from './TodoListManager';
 import Todo from './Todo';
 import Editor from './Editor';
-import QuitAlert from './QuitAlert';
+import PopAlert from './PopAlert';
 
 
-export { About, Home, Welcome, TodoListManager, Todo, Editor, QuitAlert};
+export { Home, Welcome, Archive, TodoListManager, Todo, Editor, PopAlert};

@@ -1,200 +1,245 @@
+/**
+ * The container. Act as the parent of all other components under the route "/todolist"
+ *
+ * @module TodoListContainer
+ */
 import React, { Component } from 'react';
-import { Editor, TodoListManager, QuitAlert} from '../components';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import Immutable from 'immutable';
+
+import * as todoListActionCreators from '../actions/todolist';
+
+import { Editor, TodoListManager, PopAlert } from '../components';
 import { hashHistory } from 'react-router';
 
-export default class TodosContainer extends Component {
+
+class TodosContainer extends Component {
+
   constructor (props) {
-    super(props);
-    // initial state
-    this.state = { 
-      todolist: [], 
-      editedTodo: null,
-      selectedTodo: null,
-      showEditor: false,
-      addNew: false,
-      showAlert: false
-    };
+    // Call super, get context.
+    super();
     this.popEdit = this.popEdit.bind(this);
     this.popAdd = this.popAdd.bind(this);
     this.closeEditor = this.closeEditor.bind(this);
-    this.seteditedTodo = this.seteditedTodo.bind(this);
+    this.setAlertName = this.setAlertName.bind(this);
+
+    this.setSelectedTodo = this.setSelectedTodo.bind(this);
+    this.setEditedTodo = this.setEditedTodo.bind(this);
     this.deleteTodo = this.deleteTodo.bind(this);
     this.uploadTodo = this.uploadTodo.bind(this);
     this.snipTodo   = this.snipTodo.bind(this);
 
-    this.closeAlert = this.closeAlert.bind(this);
-    this.closeAlterAndEditor = this.closeAlterAndEditor.bind(this);
+    /**
+     * A mapping from alert names to their confirm functions.
+     * For example, if the alertName is 'delete', when the Confirm button on the
+     * alert dialog is clicked, this.deleteTodo will be called.
+     * 
+     * @type {Object}
+     */
+    this.alertNameToConfirm = {
+      "delete": this.deleteTodo,
+      "snip": this.snipTodo,
+      "quitEditor": this.closeEditor
+    };
+
+    /**
+     * A mapping from alert names to their style names.
+     * @type {Object}
+     */
+    this.alertNameToStyle = {
+      "delete": "danger",
+      "snip": "info",
+      "quitEditor": "danger"
+    };
+
+    /**
+     * A mapping from alert names to their hint texts.
+     * @type {Object}
+     */
+    this.alertNameToPopText = {
+      "delete": "Will remove this item for good.",
+      "snip": "Will remove stopwords and break the item into sentences.",
+      "quitEditor": "Quit without saving changes."
+    };
 
   }
 
-
+  /**
+   * Lifecycle method, executed after first render.
+   */
   componentDidMount () {
-    // once mounted
     this.getTodoList();
   }
 
+  /**
+   * Dispatch a GET_TODOLIST action, intercepted by saga watcher.
+   */
+  getTodoList () {
+    this.props.todoListActions.getTodoList();
+  }
+
+  /**
+   * Pop up the Editor view, set selectedTodo and editedTodo.
+   * Here editedTodo is first copied from selected todo， which will be shown.
+   * 
+   * @param index {Number} the index where popEdit is invoked.
+   */
   popEdit (index) {
-    this.setState(
-      {
-        editedTodo: this.state.todolist[index], 
-        selectedTodo: this.state.todolist[index],
-        showEditor: true, 
-        addNew: false 
-      }
-    );
+
+    this.props.todoListActions.setEditedTodo(this.props.todolist[index]);
+    this.props.todoListActions.setSelectedTodo(this.props.todolist[index]);
+    // This call will set the state 'showEditor'
+    this.props.todoListActions.setEditor(true);
+
   }
 
+  /**
+   * Pop up the Editor view to add a new todo.
+   * Starting fresh, no selectedTodo provided.
+   */
   popAdd () {
-    this.setState(
-      {editedTodo: null, showEditor: true, addNew: true }
-    );
+    this.props.todoListActions.setEditedTodo(Immutable.Map().toJS());
+    this.props.todoListActions.setSelectedTodo(Immutable.Map().toJS());
+    // This call will set the state 'showEditor'
+    this.props.todoListActions.setEditor(true);
   }
 
+  /**
+   * Close the Editor view
+   */
   closeEditor () {
-    let sltdTodo = this.state.selectedTodo;
-    let edTodo = this.state.editedTodo;
-
-    if ( (!sltdTodo) && edTodo && edTodo.text ) {  // break it for clarity
-      // don't close, show alert
-      this.setState({showAlert: true});
-    } else if ( sltdTodo && (sltdTodo.text !== edTodo.text || sltdTodo.completed !== edTodo.completed) ) {
-      // don't close, show alert
-      this.setState({showAlert: true});
-    } else {  // nothing to save, really close it.
-      this.setState({ showEditor: false});
-    }
+    this.props.todoListActions.setEditedTodo(Immutable.Map().toJS());
+    this.props.todoListActions.setSelectedTodo(Immutable.Map().toJS());
+    this.props.todoListActions.setEditor(false);
   }
 
-  closeAlert () {
-    // back to editor
-    this.setState({
-      showAlert: false
-    });
+  /**
+   * This will reset the alertName, which controls how to show the alert.
+   * 
+   * @param alertName {string} the alert name string. can be "delete", "snip", "quitEditor", '', null.
+   */
+  setAlertName ( alertName ) {
+    this.props.todoListActions.setAlertName( alertName );
   }
 
-  closeAlterAndEditor () {
-    // quit without saving
-    this.setState({
-      editedTodo: null,    // give up editing
-      selectedTodo: null,  // restore selected
-      showEditor: false,   // hide editor
-      showAlert: false     // close alert
-    });
-  }
-
-  seteditedTodo () {
+  /**
+   * Set editedTodo, tracking the element values from Editor.
+   */
+  setEditedTodo ( ) {
     const editedTodoText = document.getElementById('edit-todo-text').value;
     const editedTodoComplete = document.getElementById('edit-todo-complete').checked;
-    this.setState({
-      editedTodo: Object.assign(
-        {}, 
-        this.state.editedTodo, 
-        {text: editedTodoText, completed: editedTodoComplete}) 
-    });
+
+    const editedTodo = Object.assign({}, this.props.editedTodo, { text: editedTodoText, completed: editedTodoComplete});
+
+    this.props.todoListActions.setEditedTodo(editedTodo);
   }
 
-  getTodoList () {
-    fetch('http://localhost:8080/todolist', {
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })
-    })
-    .then(response => response.json())
-    .then(data => this.setState({ todolist: data }));
+  /**
+   * Set selectedTodo according the item on which it is called.
+   * @param todoItem [Object] which todo item to set as selected. 
+   */
+  setSelectedTodo (todoItem) {
+    this.props.todoListActions.setSelectedTodo(todoItem);
   }
 
-  deleteTodo (id) {
-     fetch(`http://localhost:8080/todolist/${id}`, {
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      method: 'DELETE',
-    })
-    .then(response => response.json())
-    .then(response => {
-      // remove todo from state
-      this.setState({ todolist: this.state.todolist.filter(todo => todo._id !== id) }); 
-      console.log(response.message);
-    });
+  /**
+   * Dispatch a DELETE_TODO action, intercepted by saga watcher.
+   */
+  deleteTodo ( ) {
+    this.props.todoListActions.deleteTodo( );
+    // Also, reset selectedTodo
+    this.props.todoListActions.setSelectedTodo(Immutable.Map().toJS());
   }
 
-  // post a new todo or patch an old todo, thus the name uploadTodo
+  /**
+   * Either to post a new todo, or to update an old one. 
+   * These two operations are merged together for reusability.
+   * No arguments are provided, the aimed item will be editedTodo.
+   * That is, either to post the editedTodo as a new todo, or path it as old.
+   */
   uploadTodo ( ) {
-    //editedTodo: { text, completed }
-    //method: 'POST' or 'PATCH' 
-    let newTodo = this.state.editedTodo;
-    let method = this.state.addNew ? 'POST' : 'PATCH';
-    let subfix = this.state.addNew ? '' : '/'+newTodo._id;
-
-    fetch('http://localhost:8080/todolist' + subfix, {
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      }),
-      method: method,
-      body: JSON.stringify(newTodo)
-    })
-    .then(response => response.json())
-    .then(data => {
-      // go back to the view of todolist
-      this.setState({ showEditor: false});
-      if (this.state.addNew) {
-        this.setState({
-          showEditor: false, 
-          todolist: [data, ...this.state.todolist]
-        });
-      } else {
-        this.setState({
-          showEditor: false,
-          showAlert: false,
-          todolist: [data, ...this.state.todolist.filter(todo => todo._id !== newTodo._id)]
-        });
-      }
-    });
+    /**
+     * Dispatch a UPLOAD_TODO action, intercepted by saga watcher.
+     */
+    this.props.todoListActions.uploadTodo();
+    // Reset selectedTodo
+    this.props.todoListActions.setSelectedTodo(Immutable.Map().toJS());
+    // Close the Editor view
+    this.props.todoListActions.setEditor(false);
   }
 
-  // remove stopwords, and break paragraph into sentences.
-  snipTodo (id) {
-     fetch(`http://localhost:8080/swr/${id}`, {
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      method: 'GET',
-    })
-    .then(response => response.json())
-    .then(data => {
-      // remove original todo from state
-      // and add new todos
-      let newTodoList = this.state.todolist.filter(todo => todo._id !== id).concat( data );
-      this.setState({ todolist: newTodoList}); 
-    });
+  /**
+   * For the selectedTodo, remove stopwords, and break paragraph into sentences.
+   * Dispatch a SNIP_TODO action, intercepted by saga watcher.
+   */
+  snipTodo ( ) {
+    this.props.todoListActions.snipTodo();
+    // Reset selectedTodo
+    this.props.todoListActions.setSelectedTodo(Immutable.Map().toJS());
   }
 
   render () {
 
-    const { todolist, editedTodo, showEditor, showAlert } = this.state;
+    const todolist = this.props.todolist;
+    const selectedTodo = this.props.selectedTodo;
+    const editedTodo = this.props.editedTodo;
+    const alertName = this.props.alertName;
+    const showEditor = this.props.showEditor;
+
     return (
       <div>
-        <QuitAlert 
-          showAlert={showAlert}
-          closeAlert={this.closeAlert}
-          closeAlterAndEditor={this.closeAlterAndEditor}
+        <PopAlert
+          alertName={alertName}
+          confirm={this.alertNameToConfirm[alertName]}
+          popText={this.alertNameToPopText[alertName]}
+          setAlertName={this.setAlertName}
+          alertStyle={this.alertNameToStyle[alertName]}
         />
         <Editor
+          selectedTodo={selectedTodo}
           editedTodo={editedTodo}
           showEditor={showEditor}
           closeEditor={this.closeEditor}
-          seteditedTodo={this.seteditedTodo}
+          setAlertName={this.setAlertName}
+          setEditedTodo={this.setEditedTodo}
           uploadTodo={this.uploadTodo}
         />
         <TodoListManager
           todolist={todolist}
           popEdit={this.popEdit}
           popAdd={this.popAdd}
-          deleteTodo={this.deleteTodo}
-          snipTodo={this.snipTodo}
+          setAlertName={this.setAlertName}
+          setSelectedTodo={this.setSelectedTodo}
         />
       </div>
     );
   }
-
 }
+
+/**
+ * Map states in store to props, making them accessible (readable).
+ */
+function mapStateToProps (state) {
+  return {
+    todolist: state.getIn(['todolist', 'list'], Immutable.List()).toJS(),
+    editedTodo: state.getIn(['todolist', 'editedTodo'], Immutable.Map()).toJS(),
+    selectedTodo: state.getIn(['todolist', 'selectedTodo'], Immutable.Map()).toJS(),
+    alertName: state.getIn(['todolist', 'alertName'], ''),
+    showEditor: state.getIn(['todolist', 'showEditor'], false),
+  };
+}
+
+/**
+ * Map action dispatching to props, making them invokable.
+ * Dispatched actions will be handled by reducer and sagas.
+ */
+function mapDispatchToProps (dispatch) {
+  return {
+    todoListActions: bindActionCreators(todoListActionCreators, dispatch)
+  };
+}
+
+//Export connected TodosContainer
+export default connect(mapStateToProps, mapDispatchToProps)(TodosContainer);
+
