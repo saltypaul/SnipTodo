@@ -1,0 +1,110 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  color: #000;
+  text-align: center;
+}
+
+.inner {
+  padding: 30px;
+}
+
+.container {
+  width: 900px;
+}
+.innercontainer {
+  margin-top: 140px;
+}
+
+#content {
+  height:inherit;
+}
+.main {
+  font-size:12px;
+  height: inherit;
+}
+
+.nav {
+  font-size: 16px;
+}
+
+.lead .btn {
+    background-color: #0c8a27;
+    color: white;
+    border: 1px solid;
+    border-radius: 50px;
+    width: 40%;
+}
+
+.lead .btn:hover, .btn-submit:hover {
+  background-color: orange;
+  color:white;
+}
+
+.navbar {
+  padding-top: 3em;
+  min-height: 75px;
+  border-radius: 0;
+}
+.navbar-brand {
+  font-size: 32px;
+  padding: initial;
+}
+.navbar-inverse {
+  border-color: transparent;
+}
+.view {
+  height:100%;
+}
+
+.row {
+  padding-top: 0;
+}
+
+.modal-body {
+    max-height: 800px;
+}
+
+.alter-margin {
+  margin: 0 7em;
+}
+.alert-span {
+  margin: 0 40px;
+}
+
+
+.todo-text {
+  text-align: left;
+  height: 2em;
+  line-height: 2em;
+  margin: 0 0 0;
+}
+.todo-button-div {
+  float: right;
+}
+
+#githubribon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: 0;
+  z-index: 9999
+}
+
+#popalert {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.wrapper {
+  height:100%
+}
+
