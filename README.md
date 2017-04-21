@@ -15,9 +15,9 @@ React-Router for routing
 React-Bootstrap for better front-end components  
 React-Router-Bootstrap, a combination of React-Router and React-Bootstrap  
 Redux, React-Redux as state container  
+Redux-DevTools for Redux inspecting  
 Redux-Immutable to create an equivalent function of Redux combineReducers that works with Immutable.js state.  
 Redux-Saga to handle async operations  
-ngrok for NAT
 
 ## How to Deploy Locally
 ### [1. Install Node.js](https://nodejs.org/en/)
@@ -40,4 +40,10 @@ To start the CoreNLP server, first, make sure you have [JRE](http://www.oracle.c
 To check whether it's working, open a browser and go to http://localhost:9000/
 
 ### 4. Install SnipTodo
-Just download this repo. Inside its folder run the command `yarn build` to build. Next, check your CoreNLP server and mongod, make sure they are runing. Then, run `yarn api` to start the server for SnipTodo. Open up your browser and go to http://localhost:8080 and you are good to go, hopefully. I've run some tests locally, it works. If this doesn't work for you, maybe the easier way is that we use TeamViewer to go through the project together.    
+Just download this repo. Inside its folder run the command `yarn build` to build. Next, check your CoreNLP server and mongod, make sure they are runing. Then, run `yarn api` to start the server for SnipTodo. Open up your browser and go to http://localhost:8080 and you are good to go, hopefully. I've run some tests locally, it works. If this doesn't work for you, maybe the easier way is that we use TeamViewer to go through the project together.  
+Some screenshots:  
+[1](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%886.16.22.png)  
+[2](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%884.01.30.png)  
+[3](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%886.16.39.png)  
+[4](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%886.17.02.png)  
+[5](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%886.17.20.png)
