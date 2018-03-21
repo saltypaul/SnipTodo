@@ -40,7 +40,7 @@ To start the CoreNLP server, first, make sure you have [JRE](http://www.oracle.c
 To check whether it's working, open a browser and go to http://localhost:9000/
 
 ### 4. Install SnipTodo
-Just download this repo. Inside its folder run the command `yarn build` to build. Next, check your CoreNLP server and mongod, make sure they are runing. Then, run `yarn api` to start the server for SnipTodo. Open up your browser and go to http://localhost:8080 and you are good to go, hopefully. I've run some tests locally, it works. If this doesn't work for you, maybe the easier way is that we use TeamViewer to go through the project together.  
+Just download this repo. Inside its folder run the command `yarn build` to build. Next, check your CoreNLP server and mongod, make sure they are runing. Then, run `yarn api` to start the server for SnipTodo. Open up your browser and go to http://localhost:8080.  
 Some screenshots:  
 [1](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%886.16.22.png)  
 [2](http://7xrz9i.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-04-22%20%E4%B8%8A%E5%8D%884.01.30.png)  
